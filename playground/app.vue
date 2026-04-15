@@ -47,10 +47,10 @@
       <section class="mb-12">
         <div class="bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-2xl border border-purple-500/30 p-8 md:p-12">
           <h2 class="text-4xl md:text-5xl font-bold text-white mb-4">
-            <AiI18nT key="欢迎使用 nuxt-ai-i18n" />
+            <AiI18nT tKey="欢迎使用 nuxt-ai-i18n" />
           </h2>
           <p class="text-lg text-purple-200 mb-6 max-w-2xl">
-            <AiI18nT key="这是一个基于 AI 的 Nuxt3 国际化插件演示。你只需要在代码中直接写中文，插件会自动帮你翻译成其他语言。" />
+            <AiI18nT tKey="这是一个基于 AI 的 Nuxt3 国际化插件演示。你只需要在代码中直接写中文，插件会自动帮你翻译成其他语言。" />
           </p>
           <div class="flex gap-4">
             <button class="px-6 py-3 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium hover:shadow-lg hover:shadow-purple-500/50 transition-all">
@@ -72,8 +72,8 @@
             <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <span class="text-2xl">🤖</span>
             </div>
-            <h4 class="text-xl font-bold text-white mb-2"><AiI18nT key="AI 自动翻译" /></h4>
-            <p class="text-purple-300"><AiI18nT key="智能识别缺失翻译，自动调用 LLM 进行翻译并保存。" /></p>
+            <h4 class="text-xl font-bold text-white mb-2"><AiI18nT tKey="AI 自动翻译" /></h4>
+            <p class="text-purple-300"><AiI18nT tKey="智能识别缺失翻译，自动调用 LLM 进行翻译并保存。" /></p>
           </div>
 
           <!-- Feature 2 -->
@@ -81,8 +81,8 @@
             <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <span class="text-2xl">✏️</span>
             </div>
-            <h4 class="text-xl font-bold text-white mb-2"><AiI18nT key="可视化编辑" /></h4>
-            <p class="text-purple-300"><AiI18nT key="直观的批注层，支持在页面上直接修改翻译内容。" /></p>
+            <h4 class="text-xl font-bold text-white mb-2"><AiI18nT tKey="可视化编辑" /></h4>
+            <p class="text-purple-300"><AiI18nT tKey="直观的批注层，支持在页面上直接修改翻译内容。" /></p>
           </div>
 
           <!-- Feature 3 -->
@@ -90,8 +90,8 @@
             <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-400 to-cyan-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <span class="text-2xl">💾</span>
             </div>
-            <h4 class="text-xl font-bold text-white mb-2"><AiI18nT key="数据回流" /></h4>
-            <p class="text-purple-300"><AiI18nT key="修改的翻译自动保存到本地字典，形成完整的闭环。" /></p>
+            <h4 class="text-xl font-bold text-white mb-2"><AiI18nT tKey="数据回流" /></h4>
+            <p class="text-purple-300"><AiI18nT tKey="修改的翻译自动保存到本地字典，形成完整的闭环。" /></p>
           </div>
         </div>
       </section>
@@ -104,12 +104,12 @@
           <div class="bg-slate-800/50 backdrop-blur border border-purple-500/20 rounded-xl p-8">
             <h4 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
               <span class="text-2xl">📝</span>
-              <AiI18nT key="表单示例" />
+              <AiI18nT tKey="表单示例" />
             </h4>
             <div class="space-y-4">
               <div>
                 <label class="block text-sm font-medium text-purple-300 mb-2">
-                  <AiI18nT key="用户名" />
+                  <AiI18nT tKey="用户名" />
                 </label>
                 <input 
                   type="text" 
@@ -119,7 +119,7 @@
               </div>
               <div>
                 <label class="block text-sm font-medium text-purple-300 mb-2">
-                  <AiI18nT key="邮箱地址" />
+                  <AiI18nT tKey="邮箱地址" />
                 </label>
                 <input 
                   type="email" 
@@ -128,7 +128,7 @@
                 />
               </div>
               <button class="w-full px-6 py-3 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium hover:shadow-lg hover:shadow-purple-500/50 transition-all mt-6">
-                <AiI18nT key="提交表单" />
+                <AiI18nT tKey="提交表单" />
               </button>
             </div>
           </div>
@@ -137,19 +137,19 @@
           <div class="bg-slate-800/50 backdrop-blur border border-purple-500/20 rounded-xl p-8">
             <h4 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
               <span class="text-2xl">📊</span>
-              <AiI18nT key="统计信息" />
+              <AiI18nT tKey="统计信息" />
             </h4>
             <div class="space-y-4">
               <div class="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg border border-purple-500/10">
-                <span class="text-purple-300"><AiI18nT key="已翻译语言" /></span>
+                <span class="text-purple-300"><AiI18nT tKey="已翻译语言" /></span>
                 <span class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">4</span>
               </div>
               <div class="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg border border-purple-500/10">
-                <span class="text-purple-300"><AiI18nT key="翻译词条" /></span>
+                <span class="text-purple-300"><AiI18nT tKey="翻译词条" /></span>
                 <span class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">{{ dictionary && currentLocale && dictionary[currentLocale] ? Object.keys(dictionary[currentLocale]).length : 0 }}</span>
               </div>
               <div class="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg border border-purple-500/10">
-                <span class="text-purple-300"><AiI18nT key="编辑状态" /></span>
+                <span class="text-purple-300"><AiI18nT tKey="编辑状态" /></span>
                 <span class="text-sm px-3 py-1 rounded-full" :class="isEditing ? 'bg-green-500/20 text-green-300' : 'bg-slate-600/20 text-slate-300'">
                   {{ isEditing ? $t('编辑中') : $t('查看中') }}
                 </span>
@@ -170,8 +170,8 @@
               </div>
             </div>
             <div>
-              <h4 class="text-lg font-bold text-white"><AiI18nT key="开发阶段" /></h4>
-              <p class="text-purple-300"><AiI18nT key="开发者在代码中直接使用中文，无需维护 i18n Key。" /></p>
+              <h4 class="text-lg font-bold text-white"><AiI18nT tKey="开发阶段" /></h4>
+              <p class="text-purple-300"><AiI18nT tKey="开发者在代码中直接使用中文，无需维护 i18n Key。" /></p>
             </div>
           </div>
 
@@ -182,8 +182,8 @@
               </div>
             </div>
             <div>
-              <h4 class="text-lg font-bold text-white"><AiI18nT key="运行阶段" /></h4>
-              <p class="text-purple-300"><AiI18nT key="用户切换语言时，插件自动检测缺失翻译并调用 AI 进行翻译。" /></p>
+              <h4 class="text-lg font-bold text-white"><AiI18nT tKey="运行阶段" /></h4>
+              <p class="text-purple-300"><AiI18nT tKey="用户切换语言时，插件自动检测缺失翻译并调用 AI 进行翻译。" /></p>
             </div>
           </div>
 
@@ -194,8 +194,8 @@
               </div>
             </div>
             <div>
-              <h4 class="text-lg font-bold text-white"><AiI18nT key="校对阶段" /></h4>
-              <p class="text-purple-300"><AiI18nT key="开启编辑模式，直接在页面上修改 AI 生成的翻译，自动保存到本地。" /></p>
+              <h4 class="text-lg font-bold text-white"><AiI18nT tKey="校对阶段" /></h4>
+              <p class="text-purple-300"><AiI18nT tKey="开启编辑模式，直接在页面上修改 AI 生成的翻译，自动保存到本地。" /></p>
             </div>
           </div>
         </div>
@@ -205,10 +205,10 @@
       <section class="mb-12">
         <div class="bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-2xl border border-purple-500/30 p-8 md:p-12 text-center">
           <h3 class="text-3xl font-bold text-white mb-4">
-            <AiI18nT key="准备好了吗？" />
+            <AiI18nT tKey="准备好了吗？" />
           </h3>
           <p class="text-lg text-purple-200 mb-8">
-            <AiI18nT key="立即开始使用 nuxt-ai-i18n，让国际化变得简单。" />
+            <AiI18nT tKey="立即开始使用 nuxt-ai-i18n，让国际化变得简单。" />
           </p>
           <button class="px-8 py-4 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-lg hover:shadow-lg hover:shadow-purple-500/50 transition-all">
             {{ $t('开始体验') }}
@@ -260,7 +260,7 @@
           </div>
         </div>
         <div class="border-t border-purple-500/20 pt-8 text-center text-purple-300 text-sm">
-          <p>&copy; 2024 nuxt-ai-i18n. <AiI18nT key="让国际化变得简单。" /></p>
+          <p>&copy; 2024 nuxt-ai-i18n. <AiI18nT tKey="让国际化变得简单。" /></p>
         </div>
       </div>
     </footer>

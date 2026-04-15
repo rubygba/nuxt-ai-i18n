@@ -4,6 +4,7 @@ export default defineNuxtConfig({
   ssr: false,
   devtools: { enabled: true },
   modules: [
+    '@nuxtjs/tailwindcss',
     '../packages/nuxt-ai-i18n/src/module.ts'
   ],
   aiI18n: {
