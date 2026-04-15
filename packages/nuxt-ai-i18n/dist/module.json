@@ -1,0 +1,9 @@
+{
+  "name": "nuxt-ai-i18n",
+  "configKey": "aiI18n",
+  "version": "1.0.0",
+  "builder": {
+    "@nuxt/module-builder": "1.0.2",
+    "unbuild": "unknown"
+  }
+}

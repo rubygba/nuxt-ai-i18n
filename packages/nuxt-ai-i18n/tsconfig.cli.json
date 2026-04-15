@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "declaration": false,
+    "noEmit": false,
+    "ignoreDeprecations": "6.0"
+  },
+  "include": [
+    "src/cli.ts"
+  ]
+}

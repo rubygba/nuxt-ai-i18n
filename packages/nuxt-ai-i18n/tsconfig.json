@@ -1,0 +1,30 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "types": ["node"], // Add node types
+    "paths": {
+      "#app": ["../playground/.nuxt/types/app.d.ts"],
+      "#imports": ["../playground/.nuxt/types/imports.d.ts"],
+      "#vue-router": ["../playground/.nuxt/types/vue-router.d.ts"]
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.vue"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "playground"
+  ]
+}

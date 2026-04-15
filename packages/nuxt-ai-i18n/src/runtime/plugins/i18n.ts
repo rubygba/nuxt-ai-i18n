@@ -1,68 +1,73 @@
 import { defineNuxtPlugin, useRuntimeConfig, useState, useCookie } from '#app'
-import { ref, computed, h, defineComponent, onMounted } from 'vue'
+import { computed } from 'vue'
 
-export default defineNuxtPlugin((nuxtApp) => {
-  const config = useRuntimeConfig().public?.aiI18n || {}
-  const locale = useCookie('ai-i18n-locale', { default: () => config.defaultLocale || 'zh' })
-  const isEditing = useState('ai-i18n-editing', () => false)
-  const dictionary = useState('ai-i18n-dictionary', () => ({}))
+export default defineNuxtPlugin(async (nuxtApp) => {
+  const config = (useRuntimeConfig()?.public?.aiI18n || {}) as {
+    defaultLocale?: string
+    locales?: string[]
+  }
 
-  // Fetch dictionary for current locale
-  const fetchDictionary = async (l: string) => {
+  const defaultLocale = config.defaultLocale || 'zh'
+  const supportedLocales = config.locales || ['zh', 'en', 'ja', 'ko']
+
+  // Persist locale selection in a cookie
+  const localeCookie = useCookie<string>('ai-i18n-locale', { default: () => defaultLocale })
+  const currentLocale = useState<string>('ai-i18n-locale', () => localeCookie.value || defaultLocale)
+
+  // Dictionary: { [locale]: { [key]: string } }
+  // This is populated from pre-generated JSON files via the /api/ai-i18n/locales endpoint.
+  // No runtime AI calls are made here — translation happens at dev/build time via the CLI.
+  const dictionary = useState<Record<string, Record<string, string>>>('ai-i18n-dict', () => ({}))
+
+  // Visual editor mode
+  const editMode = useState<boolean>('ai-i18n-edit-mode', () => false)
+
+  // Load dictionary for a given locale from the pre-generated JSON files
+  async function loadLocale(locale: string) {
+    if (!locale || locale === defaultLocale) return
+    if (dictionary.value[locale]) return // already loaded
+
     try {
-      const data = await $fetch(`/api/ai-i18n/locales?lang=${l}`)
-      dictionary.value[l] = data || {}
-    } catch (e) {
-      console.error('Failed to fetch dictionary', e)
+      const data = await $fetch<Record<string, string>>(`/api/ai-i18n/locales?lang=${locale}`)
+      if (data && typeof data === 'object') {
+        dictionary.value[locale] = data
+      }
+    }
+    catch {
+      // Locale file not found or not yet generated — gracefully fall back to source key
+      dictionary.value[locale] = {}
     }
   }
 
-  // Initial fetch
-  if (process.client) {
-    onMounted(() => {
-      fetchDictionary(locale.value)
-    })
+  // Translate a key using the loaded dictionary
+  function t(key: string): string {
+    const locale = currentLocale.value
+    if (!locale || locale === defaultLocale) return key
+    const dict = dictionary.value[locale]
+    if (!dict) return key
+    return dict[key] ?? key
   }
 
-  const t = (key: string) => {
-    if (!locale.value || !dictionary.value) return key
-    const currentDict = dictionary.value[locale.value] || {}
-    const entry = currentDict[key]
-
-    // If key is missing and we are in default locale, it's the key itself
-    if (locale.value === (config.defaultLocale || 'zh')) {
-      return entry?.value || key
-    }
-
-    // If missing in other locale, trigger auto-translation (client-side for demo)
-    if (!entry && process.client && config.autoTranslate) {
-      // Mark as translating to avoid duplicate calls
-      if (!dictionary.value[locale.value]) dictionary.value[locale.value] = {}
-      dictionary.value[locale.value][key] = { value: '...', meta: { status: 'translating' } }
-      
-      $fetch('/api/ai-i18n/translate', {
-        method: 'POST',
-        body: { key, targetLang: locale.value }
-      }).then((res: any) => {
-        dictionary.value[locale.value][key] = res
-      })
-    }
-
-    return entry?.value || key
+  // Switch locale and load its dictionary
+  async function setLocale(locale: string) {
+    if (!supportedLocales.includes(locale)) return
+    await loadLocale(locale)
+    currentLocale.value = locale
+    localeCookie.value = locale
   }
 
-  // Provide $t and other helpers
+  // Preload the initial locale on plugin init (SSR + client)
+  await loadLocale(currentLocale.value)
+
   return {
     provide: {
       t,
-      setLocale: (l: string) => {
-        locale.value = l
-        fetchDictionary(l)
-      },
-      currentLocale: computed(() => locale.value),
-      isEditing: computed(() => isEditing.value),
-      toggleEditing: () => { isEditing.value = !isEditing.value },
-      dictionary
-    }
+      locale: computed(() => currentLocale.value),
+      setLocale,
+      dictionary,
+      editMode,
+      supportedLocales,
+      defaultLocale,
+    },
   }
 })

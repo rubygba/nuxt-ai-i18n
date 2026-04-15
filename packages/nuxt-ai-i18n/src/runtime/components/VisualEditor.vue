@@ -1,80 +1,109 @@
 <template>
-  <div v-if="isEditing" class="ai-i18n-editor-overlay">
-    <div class="ai-i18n-editor-panel">
-      <div class="header">
-        <h3>AI i18n Editor</h3>
-        <button @click="toggleEditing">Close</button>
-      </div>
-      <div class="content">
-        <div v-if="selectedKey" class="edit-form">
-          <div class="field">
-            <label>Original ({{ config.defaultLocale }}):</label>
-            <div class="original-text">{{ selectedKey }}</div>
+  <div v-if="editMode?.value">
+    <!-- Floating editor panel -->
+    <Teleport to="body">
+      <div class="ai-i18n-overlay">
+        <div class="ai-i18n-panel">
+          <div class="ai-i18n-panel-header">
+            <div class="ai-i18n-panel-title">
+              <span class="ai-i18n-badge">AI i18n</span>
+              <span>Visual Editor</span>
+            </div>
+            <button class="ai-i18n-close" @click="closeEditor">✕</button>
           </div>
-          <div class="field">
-            <label>Current ({{ currentLocale }}):</label>
-            <textarea v-model="editValue" rows="3"></textarea>
+
+          <div class="ai-i18n-panel-body">
+            <div v-if="selectedKey" class="ai-i18n-edit-form">
+              <div class="ai-i18n-field">
+                <label>Source ({{ defaultLocale }}):</label>
+                <div class="ai-i18n-source">{{ selectedKey }}</div>
+              </div>
+              <div class="ai-i18n-field">
+                <label>Translation ({{ locale?.value }}):</label>
+                <textarea v-model="editValue" rows="3" class="ai-i18n-textarea" />
+              </div>
+              <div class="ai-i18n-actions">
+                <button class="ai-i18n-btn-save" :disabled="saving" @click="saveEdit">
+                  {{ saving ? 'Saving...' : 'Save' }}
+                </button>
+                <button class="ai-i18n-btn-cancel" @click="selectedKey = null">Cancel</button>
+              </div>
+              <p v-if="saveMessage" class="ai-i18n-save-msg">{{ saveMessage }}</p>
+            </div>
+            <div v-else class="ai-i18n-hint">
+              <p>Click any <span class="ai-i18n-hint-green">green-outlined</span> text to edit its translation.</p>
+              <p>Red-outlined text has no translation yet.</p>
+            </div>
           </div>
-          <div class="actions">
-            <button @click="saveEdit" :disabled="saving">Save & Verify</button>
-            <button @click="selectedKey = null">Cancel</button>
+
+          <div class="ai-i18n-panel-footer">
+            <span class="ai-i18n-footer-tip">Edits are saved to <code>locales/</code> via the server API.</span>
           </div>
         </div>
-        <div v-else class="instructions">
-          Click on any highlighted text to edit its translation.
-        </div>
       </div>
-    </div>
+    </Teleport>
   </div>
 </template>
 
-<script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import { useNuxtApp, useRuntimeConfig, useState } from '#app'
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue'
+import { useNuxtApp } from '#app'
 
-const { $t, currentLocale, isEditing, toggleEditing, dictionary } = useNuxtApp()
-const config = useRuntimeConfig().public?.aiI18n || {}
+const nuxtApp = useNuxtApp()
+const editMode = nuxtApp.$editMode as { value: boolean } | undefined
+const locale = nuxtApp.$locale as { value: string } | undefined
+const defaultLocale = nuxtApp.$defaultLocale as string | undefined
+const dictionary = nuxtApp.$dictionary as { value: Record<string, Record<string, string>> } | undefined
 
-const selectedKey = ref(null)
+const selectedKey = ref<string | null>(null)
 const editValue = ref('')
 const saving = ref(false)
+const saveMessage = ref('')
 
-const saveEdit = async () => {
-  if (!selectedKey.value) return
+function closeEditor() {
+  if (editMode) editMode.value = false
+  selectedKey.value = null
+}
+
+async function saveEdit() {
+  if (!selectedKey.value || !locale?.value) return
   saving.value = true
+  saveMessage.value = ''
   try {
-    const res = await $fetch('/api/ai-i18n/update', {
+    const res = await $fetch<{ success: boolean }>('/api/ai-i18n/update', {
       method: 'POST',
       body: {
         key: selectedKey.value,
-        newValue: editValue.value,
-        lang: currentLocale.value,
-        author: 'Visual Editor'
-      }
+        value: editValue.value,
+        lang: locale.value,
+      },
     })
-    if (res.success) {
-      // Update local dictionary
-      if (!dictionary.value[currentLocale.value]) dictionary.value[currentLocale.value] = {}
-      dictionary.value[currentLocale.value][selectedKey.value] = res.entry
+    if (res?.success && dictionary) {
+      if (!dictionary.value[locale.value]) dictionary.value[locale.value] = {}
+      dictionary.value[locale.value][selectedKey.value] = editValue.value
+      saveMessage.value = 'Saved!'
+      setTimeout(() => { saveMessage.value = '' }, 2000)
       selectedKey.value = null
     }
-  } catch (e) {
-    console.error('Failed to save edit', e)
-  } finally {
+  }
+  catch (e) {
+    saveMessage.value = 'Save failed.'
+  }
+  finally {
     saving.value = false
   }
 }
 
-// Global click interceptor for editing
-const handleGlobalClick = (e) => {
-  if (!isEditing.value) return
-  
-  const target = e.target.closest('[data-i18n-key]')
+function handleGlobalClick(e: MouseEvent) {
+  if (!editMode?.value) return
+  const target = (e.target as HTMLElement).closest('[data-i18n-key]')
   if (target) {
     e.preventDefault()
     e.stopPropagation()
-    selectedKey.value = target.getAttribute('data-i18n-key')
-    editValue.value = target.innerText
+    const key = target.getAttribute('data-i18n-key') || ''
+    selectedKey.value = key
+    const lang = locale?.value
+    editValue.value = (lang && dictionary?.value?.[lang]?.[key]) || ''
   }
 }
 
@@ -87,103 +116,185 @@ onUnmounted(() => {
 })
 </script>
 
-<style scoped>
-.ai-i18n-editor-overlay {
+<style>
+.ai-i18n-overlay {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 9999;
-  font-family: sans-serif;
+  bottom: 24px;
+  right: 24px;
+  z-index: 99999;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-.ai-i18n-editor-panel {
-  width: 350px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-  border: 1px solid #eee;
+.ai-i18n-panel {
+  width: 360px;
+  background: #1e1e2e;
+  border: 1px solid #313244;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   overflow: hidden;
+  color: #cdd6f4;
 }
 
-.header {
-  padding: 12px 16px;
-  background: #f8f9fa;
-  border-bottom: 1px solid #eee;
+.ai-i18n-panel-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 12px 16px;
+  background: #181825;
+  border-bottom: 1px solid #313244;
 }
 
-.header h3 {
-  margin: 0;
+.ai-i18n-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ai-i18n-badge {
+  background: linear-gradient(135deg, #cba6f7, #89b4fa);
+  color: #1e1e2e;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+.ai-i18n-close {
+  background: none;
+  border: none;
+  color: #6c7086;
+  cursor: pointer;
   font-size: 16px;
-  color: #333;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
 }
 
-.content {
+.ai-i18n-close:hover {
+  background: #313244;
+  color: #cdd6f4;
+}
+
+.ai-i18n-panel-body {
   padding: 16px;
 }
 
-.field {
+.ai-i18n-field {
   margin-bottom: 12px;
 }
 
-.field label {
+.ai-i18n-field label {
   display: block;
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 4px;
+  font-size: 11px;
+  color: #6c7086;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
 }
 
-.original-text {
-  padding: 8px;
-  background: #f0f0f0;
-  border-radius: 4px;
-  font-size: 14px;
+.ai-i18n-source {
+  padding: 8px 10px;
+  background: #181825;
+  border: 1px solid #313244;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #a6e3a1;
 }
 
-textarea {
+.ai-i18n-textarea {
   width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
+  padding: 8px 10px;
+  background: #181825;
+  border: 1px solid #313244;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #cdd6f4;
+  resize: vertical;
   box-sizing: border-box;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
 }
 
-.actions {
+.ai-i18n-textarea:focus {
+  border-color: #89b4fa;
+}
+
+.ai-i18n-actions {
   display: flex;
   gap: 8px;
+  margin-top: 4px;
 }
 
-button {
-  padding: 8px 12px;
-  border-radius: 4px;
+.ai-i18n-btn-save {
+  flex: 1;
+  padding: 8px;
+  background: linear-gradient(135deg, #cba6f7, #89b4fa);
+  color: #1e1e2e;
   border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 14px;
+  transition: opacity 0.15s;
 }
 
-button[disabled] {
+.ai-i18n-btn-save:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.actions button:first-child {
-  background: #007bff;
-  color: white;
-  flex: 1;
+.ai-i18n-btn-cancel {
+  padding: 8px 16px;
+  background: #313244;
+  color: #cdd6f4;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s;
 }
 
-.actions button:last-child {
-  background: #eee;
-  color: #333;
+.ai-i18n-btn-cancel:hover {
+  background: #45475a;
 }
 
-.instructions {
-  font-size: 14px;
-  color: #666;
+.ai-i18n-save-msg {
+  font-size: 12px;
+  color: #a6e3a1;
+  margin: 8px 0 0;
   text-align: center;
-  padding: 20px 0;
+}
+
+.ai-i18n-hint {
+  font-size: 13px;
+  color: #6c7086;
+  line-height: 1.6;
+}
+
+.ai-i18n-hint-green {
+  color: #a6e3a1;
+  font-weight: 600;
+}
+
+.ai-i18n-panel-footer {
+  padding: 10px 16px;
+  background: #181825;
+  border-top: 1px solid #313244;
+}
+
+.ai-i18n-footer-tip {
+  font-size: 11px;
+  color: #45475a;
+}
+
+.ai-i18n-footer-tip code {
+  color: #89b4fa;
+  background: #313244;
+  padding: 1px 4px;
+  border-radius: 3px;
 }
 </style>
