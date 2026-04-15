@@ -1,4 +1,5 @@
-import { defineEventHandler, readBody, useRuntimeConfig } from 'h3'
+import { defineEventHandler, readBody } from 'h3'
+import { useRuntimeConfig } from '#imports'
 import { OpenAI } from 'openai'
 import fs from 'fs'
 import path from 'path'

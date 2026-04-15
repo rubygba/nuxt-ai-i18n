@@ -2,8 +2,8 @@ import { defineNuxtPlugin, useRuntimeConfig, useState, useCookie } from '#app'
 import { ref, computed, h, defineComponent, onMounted } from 'vue'
 
 export default defineNuxtPlugin((nuxtApp) => {
-  const config = useRuntimeConfig().public.aiI18n
-  const locale = useCookie('ai-i18n-locale', { default: () => config.defaultLocale })
+  const config = useRuntimeConfig().public?.aiI18n || {}
+  const locale = useCookie('ai-i18n-locale', { default: () => config.defaultLocale || 'zh' })
   const isEditing = useState('ai-i18n-editing', () => false)
   const dictionary = useState('ai-i18n-dictionary', () => ({}))
 
@@ -25,11 +25,12 @@ export default defineNuxtPlugin((nuxtApp) => {
   }
 
   const t = (key: string) => {
+    if (!locale.value || !dictionary.value) return key
     const currentDict = dictionary.value[locale.value] || {}
     const entry = currentDict[key]
 
     // If key is missing and we are in default locale, it's the key itself
-    if (locale.value === config.defaultLocale) {
+    if (locale.value === (config.defaultLocale || 'zh')) {
       return entry?.value || key
     }
 

@@ -1,9 +1,10 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
-    devtools: { enabled: true },
+  ssr: false,
+  devtools: { enabled: true },
   modules: [
-    '../packages/nuxt-ai-i18n'
+    '../packages/nuxt-ai-i18n/src/module.ts'
   ],
   aiI18n: {
     locales: ['en', 'ja', 'ko'],

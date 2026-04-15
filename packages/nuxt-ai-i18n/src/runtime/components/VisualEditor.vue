@@ -33,7 +33,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useNuxtApp, useRuntimeConfig, useState } from '#app'
 
 const { $t, currentLocale, isEditing, toggleEditing, dictionary } = useNuxtApp()
-const config = useRuntimeConfig().public.aiI18n
+const config = useRuntimeConfig().public?.aiI18n || {}
 
 const selectedKey = ref(null)
 const editValue = ref('')

@@ -43,7 +43,9 @@
     </main>
 
     <!-- Visual Editor Component from Module -->
-    <AiI18nVisualEditor />
+    <ClientOnly>
+      <AiI18nVisualEditor />
+    </ClientOnly>
 
     <footer>
       <p>&copy; 2024 nuxt-ai-i18n Demo. <AiI18nT key="让国际化变得简单。" /></p>
@@ -142,6 +144,8 @@ h2 {
   color: white;
   border: none;
   width: 100%;
+  padding: 10px;
+  border-radius: 6px;
 }
 
 input[type="text"] {

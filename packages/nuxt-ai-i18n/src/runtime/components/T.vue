@@ -19,14 +19,14 @@ const props = defineProps({
   }
 })
 
-const { $t, currentLocale, isEditing, dictionary } = useNuxtApp()
-
 const translatedValue = computed(() => {
-  return $t(props.key)
+  const { $t } = useNuxtApp()
+  return $t ? $t(props.key) : props.key
 })
 
 const statusClass = computed(() => {
-  if (!isEditing.value) return ''
+  const { currentLocale, isEditing, dictionary } = useNuxtApp()
+  if (!isEditing?.value || !currentLocale?.value || !dictionary?.value) return ''
   
   const currentDict = dictionary.value[currentLocale.value] || {}
   const entry = currentDict[props.key]
